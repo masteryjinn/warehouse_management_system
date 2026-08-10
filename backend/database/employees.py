@@ -67,12 +67,12 @@ def register_user_in_db(username: str, password_hash: str, role: str) -> bool:
         with connection.cursor() as cursor:
             safe_username = connection.escape_string(username)
             # Створення користувача в базі даних MySQL
-            sql_create_user = f"CREATE USER '{safe_username}'@'localhost' IDENTIFIED BY '{password_hash}'"
+            sql_create_user = f"CREATE USER '{safe_username}'@'%' IDENTIFIED BY '{password_hash}'"
             cursor.execute(sql_create_user)
             
             # Призначення ролі користувачу
-            cursor.execute(f"GRANT {role_mapping.get(role, 'employee_role')} TO '{safe_username}'@'localhost'")
-            cursor.execute(f"SET DEFAULT ROLE {role_mapping.get(role, 'employee_role')} TO '{safe_username}'@'localhost'")
+            cursor.execute(f"GRANT {role_mapping.get(role, 'employee_role')} TO '{safe_username}'@'%'")
+            cursor.execute(f"SET DEFAULT ROLE {role_mapping.get(role, 'employee_role')} TO '{safe_username}'@'%'")
         
         # Підтвердження змін
         connection.commit()
@@ -95,10 +95,10 @@ def delete_user_from_db( username: str) -> bool:
         with connection.cursor() as cursor:
             # Скасовуємо привілеї користувача
             safe_username = connection.escape_string(username)
-            cursor.execute(f"REVOKE ALL PRIVILEGES, GRANT OPTION FROM '{safe_username}'@'localhost'")
+            cursor.execute(f"REVOKE ALL PRIVILEGES, GRANT OPTION FROM '{safe_username}'@'%'")
             
             # Видаляємо користувача з бази даних
-            cursor.execute(f"DROP USER '{safe_username}'@'localhost'")
+            cursor.execute(f"DROP USER '{safe_username}'@'%'")
         
         # Підтверджуємо зміни
         connection.commit()
@@ -371,11 +371,11 @@ def grant_role_to_user(username, role):
     :param role: Роль
     :return: True, якщо роль успішно призначено, інакше False
     """
-    safe_username = connection.escape_string(username)
-    query = f"GRANT {role_mapping.get(role, 'employee_role')} TO '{safe_username}'@'localhost'"
 
     connection = get_db_connection(DB_CONFIG_ADMIN)
     cursor = connection.cursor()
+    safe_username = connection.escape_string(username)
+    query = f"GRANT {role_mapping.get(role, 'employee_role')} TO '{safe_username}'@'%'"
     
     try:
         cursor.execute(query)

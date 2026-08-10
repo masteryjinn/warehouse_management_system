@@ -652,11 +652,12 @@ GRANT SELECT, UPDATE (status) ON WarehouseDB.tasks TO 'employee_role';
 -- Призначення завдань (task_assignments): Select, Insert, Delete 
 GRANT SELECT, INSERT, DELETE ON WarehouseDB.task_assignments TO 'employee_role';
 GRANT SELECT, INSERT ON WarehouseDB.task_updates TO 'employee_role';
+GRANT INSERT ON WarehouseDB.stockmovements TO 'employee_role';
 
 -- Робота з замовленнями
-GRANT SELECT ON WarehouseDB.orders TO 'employee_role';
+GRANT SELECT, UPDATE(status) ON WarehouseDB.orders TO 'employee_role';
 GRANT SELECT ON WarehouseDB.orderdetails TO 'employee_role';
-GRANT ALL PRIVILEGES ON WarehouseDB.users TO 'employee_role';
+GRANT SELECT(user_id, employee_id) ON WarehouseDB.users TO 'employee_role';
 
 -- ==========================================
 -- ПРАВА ДЛЯ MANAGER (Менеджер)
@@ -674,13 +675,13 @@ GRANT SELECT ON WarehouseDB.employees TO 'manager_role';
 GRANT SELECT ON WarehouseDB.contacts_employees TO 'manager_role';
 GRANT ALL PRIVILEGES ON WarehouseDB.stockmovements TO 'manager_role';
 GRANT ALL PRIVILEGES ON WarehouseDB.reports TO 'manager_role';
-GRANT ALL PRIVILEGES ON WarehouseDB.users TO 'manager_role';
 GRANT ALL PRIVILEGES ON WarehouseDB.warehousesections TO 'manager_role';
 GRANT ALL PRIVILEGES ON WarehouseDB.orderstatushistory TO 'manager_role';
 
--- Обмеження менеджера по завданнях: тільки перегляд призначень (без змін)
+-- Обмеження менеджера по завданнях: тільки перегляд призначень і створення
 GRANT SELECT ON WarehouseDB.task_assignments TO 'manager_role';
 GRANT ALL PRIVILEGES ON WarehouseDB.tasks TO 'manager_role';
+GRANT SELECT(user_id, employee_id) ON WarehouseDB.users TO 'manager_role';
 
 -- Менеджер НЕ отримує прав на таблицю Users (це для безпеки)
 -- ==========================================
