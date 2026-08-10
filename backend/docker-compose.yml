@@ -1,0 +1,50 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: warehouse_mysql_db
+    restart: always
+    command: --lower_case_table_names=1
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # Скрипт дампа зі створенням таблиць, юзерів та GRANT прав у папці init_db
+      - ./init_db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  web:
+    build: .
+    container_name: warehouse_fastapi_web
+    restart: always
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_NAME: ${DB_NAME}
+      DB_AUTH_PASSWORD: ${DB_AUTH_PASSWORD}
+      DB_CHANGE_PASSWORD: ${DB_CHANGE_PASSWORD}
+      DB_ADMIN_PASSWORD: ${DB_ADMIN_PASSWORD}
+      MYSQL_PATH: ${MYSQL_PATH}
+      TEMP_PASSWORD_LENGTH: ${TEMP_PASSWORD_LENGTH}
+      BACKUP_SECRET_KEY: ${BACKUP_SECRET_KEY}
+      EMAIL_HOST: ${EMAIL_HOST}
+      EMAIL_PORT: ${EMAIL_PORT}
+      EMAIL_ADDRESS: ${EMAIL_ADDRESS}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+    volumes:
+      - ./backups:/app/backups
+      - ./logs:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
