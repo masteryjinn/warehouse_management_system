@@ -244,8 +244,12 @@ class TasksTab(QWidget):
             if is_emp:
                 self._setup_employee_actions(row, t_id, status, task, is_assigned)
             else:
-                self.table.setCellWidget(row, 8, QLabel("-"))
-                self.table.setCellWidget(row, 9, QLabel("-"))
+                lbl_action = QLabel("-")
+                lbl_action.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                lbl_review = QLabel("-")
+                lbl_review.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                self.table.setCellWidget(row, 8, lbl_action)
+                self.table.setCellWidget(row, 9, lbl_review)
 
             # --- 3. Логіка для Адміна/Менеджера (Стовпець 10) ---
             if is_adm:
@@ -261,10 +265,13 @@ class TasksTab(QWidget):
         self.table.setItem(row, 0, QTableWidgetItem(str(task.get("task_id"))))
         self.table.setItem(row, 1, QTableWidgetItem(task.get("title", "")))
         self.table.setItem(row, 2, QTableWidgetItem("ℹ️"))
+        self.table.item(row, 2).setTextAlignment(Qt.AlignmentFlag.AlignCenter)
         priority_ukr = PRIORITY_TRANSLATIONS.get(task.get("priority"), task.get("priority"))
         self.table.setItem(row, 3, QTableWidgetItem(priority_ukr))
+        self.table.item(row, 3).setTextAlignment(Qt.AlignmentFlag.AlignCenter)
         status_ukr = STATUS_TRANSLATIONS.get(task.get("status"), task.get("status"))
         self.table.setItem(row, 4, QTableWidgetItem(status_ukr))
+        self.table.item(row, 4).setTextAlignment(Qt.AlignmentFlag.AlignCenter)
         self.table.setItem(row, 5, QTableWidgetItem(task.get("creator_name", "")))
         self.table.setItem(row, 6, QTableWidgetItem(format_date(task.get("deadline"), show_time=True)))
         assignees_names = ", ".join([a["name"] for a in task.get("assignees", [])])
@@ -281,8 +288,14 @@ class TasksTab(QWidget):
 
     def _setup_employee_actions(self, row, tid, status, task, is_assigned):
         if status in ["completed", "cancelled"]:
-            self.table.setCellWidget(row, 8, QLabel("-"))
-            self.table.setCellWidget(row, 9, QLabel("-"))
+            lbl_action = QLabel("-")
+            lbl_action.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            
+            lbl_review = QLabel("-")
+            lbl_review.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            
+            self.table.setCellWidget(row, 8, lbl_action)
+            self.table.setCellWidget(row, 9, lbl_review)
             return
         else:    
             # Кнопка взяття/відмови
